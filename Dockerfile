@@ -1,19 +1,20 @@
-FROM node:20 as build
-
+# Base image
+FROM node:latest as node
+RUN echo "stage1"
+# Working directory
 WORKDIR /app
-
-COPY ./package*.json ./
-
-RUN npm install
-
+RUN echo "stage2"
+# Copy app source
 COPY . .
-
-RUN npm run build --prod
-
+RUN echo "stage3"
+# Install dependencies
+RUN npm install
+RUN echo "stage4"
+RUN npm run build
+RUN echo "stage5"
 FROM nginx:alpine
+RUN echo "stage6"
 
-EXPOSE 8080
-
-COPY nginx.conf /etc/nginx/nginx.conf
-
-COPY --from=build /app/dist/yaml-cloud-build /usr/share/nginx/html
+COPY --from=node app/dist/yaml-cloud-build/browser /usr/share/nginx/html
+RUN cat /usr/share/nginx/html/index.html
+EXPOSE 80
